@@ -1,0 +1,25 @@
+name:                looper
+version:             0.1.0.0
+synopsis:            A time-travelling interpreter
+description:         Please see README.org
+homepage:            https://github.com/houli/looper#readme
+license:             MIT
+license-file:        LICENSE
+author:              Eoin Houlihan
+maintainer:          ehoulih@tcd.ie
+copyright:           2016 Eoin Houlihan
+category:            Web
+build-type:          Simple
+extra-source-files:  README.org
+cabal-version:       >=1.10
+
+executable looper
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base >= 4.7 && < 5
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/houli/looper
