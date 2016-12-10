@@ -36,7 +36,7 @@ type Env = Map.Map Name Val
 
 lookup :: Name -> Env -> Eval Val
 lookup k t = case Map.lookup k t of
-               Just x -> return x
+               Just x -> pure x
                Nothing -> fail ("Unknown variable " ++ k)
 
 type Eval a = ReaderT Env (ExceptT String Identity) a
@@ -48,25 +48,25 @@ evali :: (Int -> Int -> Int) -> Expr -> Expr -> Eval Val
 evali op e0 e1 = do e0' <- eval e0
                     e1' <- eval e1
                     case (e0', e1') of
-                      (I i0, I i1) -> return $ I (i0 `op` i1)
+                      (I i0, I i1) -> pure $ I (i0 `op` i1)
                       _            -> fail "type error in arithmetic expression"
 
 evalb :: (Bool -> Bool -> Bool) -> Expr -> Expr -> Eval Val
 evalb op e0 e1 = do e0' <- eval e0
                     e1' <- eval e1
                     case (e0', e1') of
-                      (B i0, B i1) -> return $ B (i0 `op` i1)
+                      (B i0, B i1) -> pure $ B (i0 `op` i1)
                       _            -> fail "type error in boolean expression"
 
 evalib :: (Int -> Int -> Bool) -> Expr -> Expr -> Eval Val
 evalib op e0 e1 = do e0' <- eval e0
                      e1' <- eval e1
                      case (e0', e1') of
-                       (I i0, I i1) -> return $ B (i0 `op` i1)
+                       (I i0, I i1) -> pure $ B (i0 `op` i1)
                        _            -> fail "type error in arithmetic expression"
 
 eval :: Expr -> Eval Val
-eval (Const v) = return v
+eval (Const v) = pure v
 eval (Add e0 e1) = evali (+) e0 e1
 eval (Sub e0 e1) = evali (-) e0 e1
 eval (Mul e0 e1) = evali (*) e0 e1
