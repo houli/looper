@@ -9,6 +9,7 @@ import           Control.Monad.Except
 import           Control.Monad.Identity
 import           Control.Monad.State
 import qualified Data.Map as Map
+import           System.IO (hFlush, stdout)
 import           Text.Read hiding (get)
 
 import           Eval
@@ -23,6 +24,7 @@ data Program = Assign String Expr
 
 data Command = Inspect
              | Step
+             | Where
              deriving (Eq, Read, Show)
 
 type Run a = StateT Env (ExceptT String IO) a
@@ -37,25 +39,29 @@ run program = do result <- runRun $ exec program
                    Right env -> print env
 
 prompt :: Run String
-prompt = liftIO $ putStr "looper> " *> getLine
+prompt = liftIO $ putStr "looper> " *> hFlush stdout *> getLine
+
+readCommand :: Program -> Run ()
+readCommand p = do
+  input <- prompt
+  case readMaybe input of
+    Nothing -> do
+      liftIO $ putStrLn ("Invalid command: " ++ input)
+      readCommand p
+    Just command -> runCommand p command
 
 runCommand :: Program -> Command -> Run ()
 runCommand p Inspect = do
   st <- get
   liftIO $ print st
-  execStepped p
+  readCommand p
 runCommand p Step = exec p
+runCommand p Where = execStepped p
 
 execStepped :: Program -> Run ()
 execStepped p = do
   liftIO $ print p
-  input <- prompt
-  let command = readMaybe input
-  case command of
-    Nothing -> do
-      liftIO $ putStrLn ("Invalid command: " ++ input)
-      execStepped p
-    Just command -> runCommand p command
+  readCommand p
 
 set :: (Name, Val) -> Run ()
 set (s, i) = state (\table -> ((), Map.insert s i table))
