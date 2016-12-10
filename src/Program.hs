@@ -10,8 +10,8 @@ import           Control.Monad.Identity
 import           Control.Monad.State
 import qualified Data.Map as Map
 import           System.IO (hFlush, stdout)
-import           Text.Read hiding (get)
 
+import           Command
 import           Eval
 
 data Program = Assign String Expr
@@ -20,11 +20,6 @@ data Program = Assign String Expr
              | Print Expr
              | Program :> Program -- Sequencing
              | Try Program Program
-             deriving (Eq, Read, Show)
-
-data Command = Inspect
-             | Step
-             | Where
              deriving (Eq, Read, Show)
 
 type Run a = StateT Env (ExceptT String IO) a
@@ -44,7 +39,7 @@ prompt = liftIO $ putStr "looper> " *> hFlush stdout *> getLine
 readCommand :: Program -> Run ()
 readCommand p = do
   input <- prompt
-  case readMaybe input of
+  case parseCommand input of
     Nothing -> do
       liftIO $ putStrLn ("Invalid command: " ++ input)
       readCommand p
@@ -55,8 +50,14 @@ runCommand p Inspect = do
   st <- get
   liftIO $ print st
   readCommand p
+runCommand p (InspectVariable name) = do
+  st <- get
+  case Map.lookup name st of
+    Nothing -> liftIO $ putStrLn ("Unknown variable " ++ name)
+    Just val -> liftIO $ print val
+  readCommand p
 runCommand p Step = exec p
-runCommand p Where = execStepped p
+runCommand p Location = execStepped p
 
 execStepped :: Program -> Run ()
 execStepped p = do
