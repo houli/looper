@@ -7,8 +7,8 @@ module Eval
   , runEval
   ) where
 
-import           Control.Monad.Identity
 import           Control.Monad.Except
+import           Control.Monad.Identity
 import           Control.Monad.Reader
 import qualified Data.Map as Map
 import           Prelude hiding (lookup)
