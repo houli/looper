@@ -8,7 +8,6 @@ module Eval
   ) where
 
 import           Control.Monad.Except
-import           Control.Monad.Identity
 import           Control.Monad.Reader
 import qualified Data.Map as Map
 import           Prelude hiding (lookup)
@@ -39,10 +38,10 @@ lookup k t = case Map.lookup k t of
                Just x -> pure x
                Nothing -> fail ("Unknown variable " ++ k)
 
-type Eval a = ReaderT Env (ExceptT String Identity) a
+type Eval a = ReaderT Env (Either String) a
 
 runEval :: Env -> Eval a -> Either String a
-runEval env ex = runIdentity (runExceptT (runReaderT ex env))
+runEval env ex = runReaderT ex env
 
 evali :: (Int -> Int -> Int) -> Expr -> Expr -> Eval Val
 evali op e0 e1 = do e0' <- eval e0

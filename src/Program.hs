@@ -6,7 +6,6 @@ module Program
 
 import           Control.Monad (when)
 import           Control.Monad.Except
-import           Control.Monad.Identity
 import           Control.Monad.State
 import qualified Data.Map as Map
 import           System.IO (hFlush, stdout)
