@@ -19,6 +19,7 @@ executable looper
   other-modules:       Command
                      , Eval
                      , Program
+                     , StaticAnalysis
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base >= 4.7 && < 5
                      , containers
