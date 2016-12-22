@@ -1,6 +1,5 @@
 module Main where
 
-import           Data.List (intercalate)
 import qualified Data.Map as Map
 
 import Eval
@@ -29,8 +28,9 @@ main :: IO ()
 main = do
   case unusedVariables test2 of
     [] -> pure ()
-    vars -> putStrLn $ "Unused variables: " ++ intercalate ", " vars
+    vars -> mapM_ printUnused vars
   run testProgram
   case runEval Map.empty (eval testExpr) of
     Left err -> print err
     Right val -> print val
+  where printUnused var = putStrLn $ show var ++ " is assigned but not used"
