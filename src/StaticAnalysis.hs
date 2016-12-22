@@ -22,23 +22,23 @@ defines = nub . go
 uses :: Program -> [String]
 uses = nub . go
   where go (Assign _ e) = usesExpr e
-        go (If cond p0 p1) = usesExpr cond ++ uses p0 ++ uses p1
-        go (While cond p) = usesExpr cond ++ uses p
+        go (If cond p0 p1) = usesExpr cond ++ go p0 ++ go p1
+        go (While cond p) = usesExpr cond ++ go p
         go (Print e) = usesExpr e
-        go (p0 :> p1) = uses p0 ++ uses p1
+        go (p0 :> p1) = go p0 ++ go p1
         go (Try p0 p1) = go p0 ++ go p1
 
 usesExpr :: Expr -> [String]
 usesExpr = nub . go
   where go (Const _) = []
-        go (Add e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Sub e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Mul e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Div e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (And e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Or e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Not e) = usesExpr e
-        go (Eq e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Gt e0 e1) = usesExpr e0 ++ usesExpr e1
-        go (Lt e0 e1) = usesExpr e0 ++ usesExpr e1
+        go (Add e0 e1) = go e0 ++ go e1
+        go (Sub e0 e1) = go e0 ++ go e1
+        go (Mul e0 e1) = go e0 ++ go e1
+        go (Div e0 e1) = go e0 ++ go e1
+        go (And e0 e1) = go e0 ++ go e1
+        go (Or e0 e1) = go e0 ++ go e1
+        go (Not e) = go e
+        go (Eq e0 e1) = go e0 ++ go e1
+        go (Gt e0 e1) = go e0 ++ go e1
+        go (Lt e0 e1) = go e0 ++ go e1
         go (Var s) = [s]
