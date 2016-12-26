@@ -31,11 +31,13 @@ data Expr = Const Val
           deriving (Eq, Read, Show)
 
 type Name = String
-type Env = Map.Map Name Val
+type Env = Map.Map Name [Val]
 
 lookup :: Name -> Env -> Eval Val
 lookup k t = case Map.lookup k t of
-               Just x -> pure x
+               Just x -> case x of
+                 (val:vals) -> pure val
+                 _          -> fail ("Unknown variable " ++ k)
                Nothing -> fail ("Unknown variable " ++ k)
 
 type Eval a = ReaderT Env (Either String) a
