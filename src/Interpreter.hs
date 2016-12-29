@@ -50,10 +50,6 @@ runCommand (InspectVariable name) = runInspectVariable name
 runCommand Step = exec
 runCommand Back = execPrevious
 runCommand Location = execStepped
-runCommand Debug = \p -> do
-  previous <- gets previous
-  liftIO $ print previous
-  readCommand p
 
 runInspect :: Program -> Run ()
 runInspect p = do

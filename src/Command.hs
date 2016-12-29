@@ -11,7 +11,6 @@ data Command = Inspect
              | Step
              | Back
              | Location
-             | Debug
              deriving (Eq, Read, Show)
 
 parseCommand :: String -> Maybe Command
@@ -25,7 +24,6 @@ command = try inspectVariable
       <|> step
       <|> back
       <|> location
-      <|> debug
 
 firstLetterOnly :: String -> Parser String
 firstLetterOnly (c:cs) = symbol (c:cs) <|> symbol [c]
@@ -45,6 +43,3 @@ back = firstLetterOnly "back" *> pure Back
 
 location :: Parser Command
 location = firstLetterOnly "location" *> pure Location
-
-debug :: Parser Command
-debug = firstLetterOnly "debug" *> pure Debug
