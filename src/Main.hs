@@ -1,26 +1,22 @@
 module Main where
 
 import Control.Monad (unless)
+import Options.Applicative
 
 import Interpreter
 import Program
 import StaticAnalysis
 
-test2 :: Program
-test2 = Assign "unused" (Const (I 3)) :>
-        Assign "arg" (Const (I 10)) :>
-        Assign "scratch" (Var "arg") :>
-        Assign "total" (Const (I 1)) :>
-        While (Gt (Var "scratch") (Const (I 1))) (
-          Assign "total" (Mul (Var "total") (Var "scratch")) :>
-          Assign "scratch" (Sub (Var "scratch") (Const (I 1))) :>
-          Print (Var "scratch")
-        ) :>
-        Print (Var "total")
+type Options = String
 
 main :: IO ()
 main = do
-  let vars = unusedVariables test2
+  fileName <- execParser opts
+  contents <- readFile fileName
+  let program = read contents :: Program
+  let vars = unusedVariables program
   unless (null vars) (mapM_ printUnused vars)
-  run test2
+  run program
     where printUnused var = putStrLn $ show var ++ " is assigned but not used"
+          parser = strOption (long "program" <> short 'p' <> metavar "PROGRAM")
+          opts = info parser mempty
