@@ -16,7 +16,7 @@ import           Program (Program)
 
 data ProgramState = ProgramState
   { env :: Env
-  , previous :: [Instruction]
+  , previous :: Tape
   , index :: Int
   , enterCommand :: Command
   } deriving Show
@@ -32,18 +32,18 @@ printEnvironment = liftIO . putStrLn . drop 9 . show
 
 run :: Program -> IO ()
 run program = do
-  result <- runRun $ runInstructions $ fromProgram program
+  result <- runRun $ runTape $ fromProgram program
   case result of
     Left exn -> print ("Uncaught exception: " ++ exn)
     Right state -> printEnvironment $ env state
 
-runInstructions :: [Instruction] -> Run ()
-runInstructions ins = do
+runTape :: Tape -> Run ()
+runTape tape = do
   index <- gets index
-  when (index < length ins) $ do
-    let i = ins !! index
-    execStepped i
-    runInstructions ins
+  when (index < length tape) $ do
+    let ins = tape !! index
+    execStepped ins
+    runTape tape
 
 execStepped :: Instruction -> Run ()
 execStepped i = if isJump i then runStep i -- Skip command prompt for control flow

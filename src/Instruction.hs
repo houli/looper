@@ -1,5 +1,6 @@
 module Instruction
   ( Instruction(..)
+  , Tape
   , fromProgram
   , isJump
   ) where
@@ -13,21 +14,23 @@ data Instruction = Assign Name Expr
                  | Print Expr
                  deriving (Eq, Show)
 
-fromProgram :: Program -> [Instruction]
+type Tape = [Instruction]
+
+fromProgram :: Program -> Tape
 fromProgram (P.Assign s e) = [Assign s e]
 fromProgram (P.If cond p0 p1) = translateIf cond p0 p1
 fromProgram (P.While cond p) = translateWhile cond p
 fromProgram (P.Print e) = [Print e]
 fromProgram (s0 P.:> s1) = fromProgram s0 ++ fromProgram s1
 
-translateIf :: Expr -> Program -> Program -> [Instruction]
+translateIf :: Expr -> Program -> Program -> Tape
 translateIf cond p0 p1 = (JMPF cond elseOffset : iif) ++ (JMP exitOffset : eelse)
   where iif = fromProgram p0
         eelse = fromProgram p1
         elseOffset = length iif + 2
         exitOffset = length eelse + 1
 
-translateWhile :: Expr -> Program -> [Instruction]
+translateWhile :: Expr -> Program -> Tape
 translateWhile cond p = (JMPF cond exitOffset : while) ++ [JMP backOffset]
   where while = fromProgram p
         exitOffset = length while + 2
