@@ -1,6 +1,7 @@
 module Instruction
   ( Instruction(..)
   , fromProgram
+  , isJump
   ) where
 
 import           Program (Expr, Name, Program)
@@ -31,3 +32,8 @@ translateWhile cond p = (JMPF cond exitOffset : while) ++ [JMP backOffset]
   where while = fromProgram p
         exitOffset = length while + 2
         backOffset = -(length while + 1)
+
+isJump :: Instruction -> Bool
+isJump JMP{} = True
+isJump JMPF{} = True
+isJump _ = False
