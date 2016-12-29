@@ -20,25 +20,31 @@ parseCommand str = case parseString (spaces *> command <* eof) mempty str of
                      Success command -> Just command
 
 command :: Parser Command
-command = try inspectVariable <|> inspect <|> step <|> back <|> location <|> debug
+command = try inspectVariable
+      <|> inspect
+      <|> step
+      <|> back
+      <|> location
+      <|> debug
 
-debug :: Parser Command
-debug = symbol "d" *> pure Debug
-
-anyInspect :: Parser String
-anyInspect = try (symbol "i") <|> symbol "inspect"
+firstLetterOnly :: String -> Parser String
+firstLetterOnly (c:cs) = symbol (c:cs) <|> symbol [c]
+firstLetterOnly "" = symbol ""
 
 inspectVariable :: Parser Command
-inspectVariable = anyInspect *> (InspectVariable <$> token (some letter))
+inspectVariable = firstLetterOnly "inspect" *> (InspectVariable <$> token (some letter))
 
 inspect :: Parser Command
-inspect = anyInspect *> pure Inspect
+inspect = firstLetterOnly "inspect" *> pure Inspect
 
 step :: Parser Command
-step = (symbol "step" <|> symbol "s") *> pure Step
+step = firstLetterOnly "step" *> pure Step
 
 back :: Parser Command
-back = (symbol "back" <|> symbol "b") *> pure Back
+back = firstLetterOnly "back" *> pure Back
 
 location :: Parser Command
-location = (symbol "location" <|> symbol "l") *> pure Location
+location = firstLetterOnly "location" *> pure Location
+
+debug :: Parser Command
+debug = firstLetterOnly "debug" *> pure Debug
