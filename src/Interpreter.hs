@@ -40,7 +40,7 @@ run program = do
 runInstructions :: [Instruction] -> Run ()
 runInstructions ins = do
   index <- gets index
-  unless (index >= length ins) $ do
+  when (index < length ins) $ do
     let i = ins !! index
     execStepped i
     runInstructions ins
