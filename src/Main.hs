@@ -1,12 +1,23 @@
 module Main where
 
-import qualified Data.Map as Map
-
+import Interpreter
 import Program
 import StaticAnalysis
 
 testProgram :: Program
 testProgram = Assign "a" (Const (I 3)) :> Print (Var "a")
+
+testIf :: Program
+testIf = Assign "i" (Const (I 3)) :>
+         If (Gt (Var "i") (Const (I 2))) (
+           Assign "i" (Sub (Var "i") (Const (I 1))) :>
+           Print (Var "i")
+         ) (
+           Assign "i" (Const (I 10)) :>
+           Print (Var "i")
+         ) :>
+         Assign "i" (Const (I 20)) :>
+         Print (Var "i")
 
 test2 :: Program
 test2 = Assign "unused" (Const (I 3)) :>

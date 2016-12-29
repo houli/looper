@@ -17,7 +17,6 @@ defines = nub . go
         go (While _ p) = go p
         go (Print _) = []
         go (p0 :> p1) = go p0 ++ go p1
-        go (Try p0 p1) = go p0 ++ go p1
 
 uses :: Program -> [String]
 uses = nub . go
@@ -26,7 +25,6 @@ uses = nub . go
         go (While cond p) = usesExpr cond ++ go p
         go (Print e) = usesExpr e
         go (p0 :> p1) = go p0 ++ go p1
-        go (Try p0 p1) = go p0 ++ go p1
 
 usesExpr :: Expr -> [String]
 usesExpr = nub . go

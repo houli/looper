@@ -18,6 +18,8 @@ executable looper
   main-is:             Main.hs
   other-modules:       Command
                      , Eval
+                     , Instruction
+                     , Interpreter
                      , Program
                      , StaticAnalysis
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
