@@ -16,6 +16,7 @@ data Instruction = Assign Name Expr
 
 type Tape = [Instruction]
 
+-- Turn a program tree into a list of instructions
 fromProgram :: Program -> Tape
 fromProgram (P.Assign s e) = [Assign s e]
 fromProgram (P.If cond p0 p1) = translateIf cond p0 p1
@@ -27,14 +28,14 @@ translateIf :: Expr -> Program -> Program -> Tape
 translateIf cond p0 p1 = (JMPF cond elseOffset : iif) ++ (JMP exitOffset : eelse)
   where iif = fromProgram p0
         eelse = fromProgram p1
-        elseOffset = length iif + 2
-        exitOffset = length eelse + 1
+        elseOffset = length iif + 2 -- Where the else code begins
+        exitOffset = length eelse + 1 -- Exit the if block
 
 translateWhile :: Expr -> Program -> Tape
 translateWhile cond p = (JMPF cond exitOffset : while) ++ [JMP backOffset]
   where while = fromProgram p
-        exitOffset = length while + 2
-        backOffset = -(length while + 1)
+        exitOffset = length while + 2 -- Where the program continues after the while
+        backOffset = -(length while + 1) -- Jump back to the condition check
 
 isJump :: Instruction -> Bool
 isJump JMP{} = True

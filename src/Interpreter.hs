@@ -14,15 +14,17 @@ import           Eval
 import           Instruction
 import           Program (Program)
 
+-- The useful state we want to keep track of
 data ProgramState = ProgramState
   { env :: Env
   , previous :: Tape
   , index :: Int
-  , enterCommand :: Command
+  , enterCommand :: Command -- Allows user to repeat step and back commands
   } deriving Show
 
 type Run a = StateT ProgramState (ExceptT String IO) a
 
+-- Our monad run function
 runRun :: Run a -> IO (Either String ProgramState)
 runRun p = runExceptT (execStateT p $ ProgramState Map.empty [] 0 Step)
 
@@ -37,6 +39,7 @@ run program = do
     Left exn -> print ("Uncaught exception: " ++ exn)
     Right state -> printEnvironment $ env state
 
+-- Main loop for executing a tape of instructions
 runTape :: Tape -> Run ()
 runTape tape = do
   index <- gets index
@@ -45,12 +48,15 @@ runTape tape = do
     execStepped ins
     runTape tape
 
+-- Print current instruction and prompt the user
 execStepped :: Instruction -> Run ()
 execStepped i = if isJump i then runStep i -- Skip command prompt for control flow
                 else do
                   liftIO $ print i
-                  readCommand i
+                  command <- readCommand
+                  runCommand command i
 
+-- Causes any necessary side effects and returns an offset to jump
 exec :: Instruction -> Run Int
 exec (Assign s e) = do
   val <- getValue e
@@ -65,6 +71,7 @@ exec (Print e) = do
   liftIO $ print val
   pure 1
 
+-- Reverses side effects and returns an offset to go back
 back :: Instruction -> Run Int
 back (Assign s _) = do
   env <- gets env
@@ -86,18 +93,18 @@ getValue e = do
 set :: (Name, Val) -> Run ()
 set (s, val) = modify $ \pState -> pState { env = Map.insertWith (++) s [val] (env pState) }
 
-readCommand :: Instruction -> Run ()
-readCommand i = do
+-- Prompt user for a command
+readCommand :: Run Command
+readCommand = do
   input <- prompt
-  if null input then do
-    lastCommand <- gets enterCommand
-    runCommand lastCommand i -- Repeat step/back command if user presses enter
+  if null input then
+    gets enterCommand -- Repeat step/back command if user presses enter
   else
     case parseCommand input of
       Nothing -> do
         liftIO $ putStrLn ("Invalid command: " ++ input)
-        readCommand i
-      Just command -> runCommand command i
+        readCommand
+      Just command -> pure command
   where prompt = liftIO $ putStr "looper> " *> hFlush stdout *> getLine
 
 runCommand :: Command -> Instruction -> Run ()
@@ -111,7 +118,8 @@ runInspect :: Instruction -> Run ()
 runInspect i = do
   env <- gets env
   printEnvironment env
-  readCommand i
+  command <- readCommand
+  runCommand command i
 
 runInspectVariable :: String -> Instruction -> Run ()
 runInspectVariable name i = do
@@ -119,7 +127,8 @@ runInspectVariable name i = do
   liftIO $ case Map.lookup name env of
     Nothing -> putStrLn ("Unknown variable " ++ name)
     Just val -> print val
-  readCommand i
+  command <- readCommand
+  runCommand command i
 
 runStep :: Instruction -> Run ()
 runStep i = do

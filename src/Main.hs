@@ -10,7 +10,7 @@ main :: IO ()
 main = do
   fileName <- execParser opts
   contents <- readFile fileName
-  let program = read contents :: Program
+  let program = read contents
   mapM_ printUnused (unusedVariables program)
   run program
     where printUnused var = putStrLn $ show var ++ " is assigned but never used"

@@ -7,11 +7,12 @@ import Data.List (nub, (\\))
 import Eval
 import Program
 
+-- Unused variables are the difference of the defines of the program and the uses
 unusedVariables :: Program -> [String]
 unusedVariables p = defines p \\ uses p
 
 defines :: Program -> [String]
-defines = nub . go
+defines = nub . go -- Strip out duplicates
   where go (Assign s _) = [s]
         go (If _ p0 p1) = go p0 ++ go p1
         go (While _ p) = go p

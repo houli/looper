@@ -32,16 +32,15 @@ data Expr = Const Val
 
 type Name = String
 type Env = Map.Map Name [Val]
+type Eval a = ReaderT Env (Either String) a
+
+runEval :: Env -> Eval a -> Either String a
+runEval env ex = runReaderT ex env
 
 lookup :: Name -> Env -> Eval Val
 lookup k t = case Map.lookup k t of
                Just (val:vals) -> pure val
                _ -> fail ("Unknown variable " ++ k)
-
-type Eval a = ReaderT Env (Either String) a
-
-runEval :: Env -> Eval a -> Either String a
-runEval env ex = runReaderT ex env
 
 evali :: (Int -> Int -> Int) -> Expr -> Expr -> Eval Val
 evali op e0 e1 = do e0' <- eval e0
@@ -76,5 +75,4 @@ eval (Not e0) = evalb (const not) e0 (Const (B True))
 eval (Eq e0 e1) = evalib (==) e0 e1
 eval (Gt e0 e1) = evalib (>) e0 e1
 eval (Lt e0 e1) = evalib (<) e0 e1
-eval (Var s) = do env <- ask
-                  lookup s env
+eval (Var s) = ask >>= lookup s
