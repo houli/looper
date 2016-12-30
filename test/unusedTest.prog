@@ -1,0 +1,14 @@
+(((
+Assign "i" (Const (I 3)) :>
+Assign "x" (Const (B True))) :>
+If (Gt (Var "i") (Const (I 2))) ((
+  Assign "i" (Sub (Var "i") (Const (I 1))) :>
+  Print (Var "i")) :>
+  Assign "y" (Const (I 0))
+) ((
+  Assign "i" (Const (I 10)) :>
+  Print (Var "i")) :>
+  Assign "z" (Const (B False)))
+) :>
+Assign "i" (Const (I 20))) :>
+Print (Var "i")
