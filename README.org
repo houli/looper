@@ -1,1 +1,58 @@
-* Looper (Time-Travelling Interpreter)
+#+TITLE: Looper (Time-Travelling Interpreter)
+#+OPTIONS: toc:nil
+
+** Building
+#+BEGIN_SRC bash
+$ stack setup && stack build
+#+END_SRC
+
+** Running
+#+BEGIN_SRC bash
+$ stack exec looper -- -p test/whileTest.prog
+#+END_SRC
+A few example programs are included in the =test= directory.
+
+Due to [[https://github.com/commercialhaskell/stack/issues/2884][a bug in stack exec]] backspace may not work. You can just run the
+executable directly from the =.stack-work= directory to sidestep this issue.
+
+** Time-Travelling Interpreter
+The interpreter supports running instructions backwards and forwards. It does
+this by first translating a structured program tree containing high-level
+constructs such as =if= and =while= into a list of instruction primitives such as
+=JMP= and =JMPF=.
+
+Running an instruction then becomes evaluating its side effects and determining
+how far it moves the current index into the instruction tape.
+
+The environment contains a mapping of variable names to list of values that
+represent the history of a variable over time which facilitates reversing
+execution.
+
+Going backwards amounts to popping a value off the list of executed
+instructions, reversing its effects if it is an assign instruction and then
+determining how far it moves the current index into the tape back.
+
+*** Using the interpreter
+Commands may be entered using either their first letter or their entire name.
+
+Pressing enter with no input will either repeat the step or back command
+depending on which run you ran last.
+**** Available Commands
+- =inspect= / =i= (inspect the current environment)
+- =inspect [VARIABLE NAME]= / =i [VARIABLE NAME]= (inspect a single variable's history)
+- =step= / =s= (steps to the next instruction)
+- =back= / =b= (steps back through the last instruction executed)
+- =location= / =l= (shows the current instruction awaiting execution)
+
+** Static Analysis
+The main program runs an unused variable analysis on the program prior to
+execution. The user is shown all of the variables that have been assigned to
+somewhere in the program but never refernced again in any statements or
+expressions. This signals to the user writing the program that they can remove
+this dead code.
+
+A test program has been included that demonstrates this feature and can be run
+with:
+#+BEGIN_SRC bash
+$ stack exec looper -- -p test/unusedTest.prog
+#+END_SRC
