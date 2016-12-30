@@ -12,7 +12,12 @@ data Instruction = Assign Name Expr
                  | JMP Int
                  | JMPF Expr Int
                  | Print Expr
-                 deriving (Eq, Show)
+
+instance Show Instruction where
+  show (Assign name expr) = name ++ " := " ++ show expr
+  show (JMP offset) = "JMP " ++ show offset
+  show (JMPF cond offset) = "JMPF " ++ show cond ++ " " ++ show offset
+  show (Print expr) = "print " ++ show expr
 
 type Tape = [Instruction]
 

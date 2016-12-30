@@ -8,10 +8,10 @@ import Eval
 import Program
 
 -- Unused variables are the difference of the defines of the program and the uses
-unusedVariables :: Program -> [String]
+unusedVariables :: Program -> [Name]
 unusedVariables p = defines p \\ uses p
 
-defines :: Program -> [String]
+defines :: Program -> [Name]
 defines = nub . go -- Strip out duplicates
   where go (Assign s _) = [s]
         go (If _ p0 p1) = go p0 ++ go p1
@@ -19,7 +19,7 @@ defines = nub . go -- Strip out duplicates
         go (Print _) = []
         go (p0 :> p1) = go p0 ++ go p1
 
-uses :: Program -> [String]
+uses :: Program -> [Name]
 uses = nub . go
   where go (Assign _ e) = usesExpr e
         go (If cond p0 p1) = usesExpr cond ++ go p0 ++ go p1
@@ -27,7 +27,7 @@ uses = nub . go
         go (Print e) = usesExpr e
         go (p0 :> p1) = go p0 ++ go p1
 
-usesExpr :: Expr -> [String]
+usesExpr :: Expr -> [Name]
 usesExpr = nub . go
   where go (Const _) = []
         go (Add e0 e1) = go e0 ++ go e1

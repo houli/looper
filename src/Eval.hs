@@ -9,12 +9,17 @@ module Eval
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
+import           Data.Char (toLower)
 import qualified Data.Map as Map
 import           Prelude hiding (lookup)
 
 data Val = I Int
          | B Bool
-         deriving (Eq, Read, Show)
+         deriving (Eq, Read)
+
+instance Show Val where
+  show (I i) = show i
+  show (B b) = toLower <$> show b
 
 data Expr = Const Val
           | Add Expr Expr
@@ -28,7 +33,21 @@ data Expr = Const Val
           | Gt Expr Expr
           | Lt Expr Expr
           | Var Name
-          deriving (Eq, Read, Show)
+          deriving (Eq, Read)
+
+instance Show Expr where
+  show (Const val) = show val
+  show (Add e0 e1) = "(" ++ show e0 ++ " + " ++ show e1 ++ ")"
+  show (Sub e0 e1) = "(" ++ show e0 ++ " - " ++ show e1 ++ ")"
+  show (Mul e0 e1) = "(" ++ show e0 ++ " * " ++ show e1 ++ ")"
+  show (Div e0 e1) = "(" ++ show e0 ++ " / " ++ show e1 ++ ")"
+  show (And e0 e1) = "(" ++ show e0 ++ " && " ++ show e1 ++ ")"
+  show (Or e0 e1) = "(" ++ show e0 ++ "||" ++ show e1 ++ ")"
+  show (Not e) = "!" ++ show e
+  show (Eq e0 e1) = "(" ++ show e0 ++ " == " ++ show e1 ++ ")"
+  show (Gt e0 e1) = "(" ++ show e0 ++ " > " ++ show e1 ++ ")"
+  show (Lt e0 e1) = "(" ++ show e0 ++ " < " ++ show e1 ++ ")"
+  show (Var name) = name
 
 type Name = String
 type Env = Map.Map Name [Val]
