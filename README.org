@@ -33,10 +33,9 @@ instructions, reversing its effects if it is an assign instruction and then
 determining how far it moves the current index into the tape back.
 
 *** Using the interpreter
-Commands may be entered using either their first letter or their entire name.
-
+Commands may be entered using either their first letter or their entire name.\\
 Pressing enter with no input will either repeat the step or back command
-depending on which run you ran last.
+depending on which one you ran last.
 **** Available Commands
 - =inspect= / =i= (inspect the current environment)
 - =inspect [VARIABLE NAME]= / =i [VARIABLE NAME]= (inspect a single variable's history)
